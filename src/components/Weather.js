@@ -10,10 +10,12 @@ export default function Weather() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastSearch, setLastSearch] = useState('');
 
   const handleSearch = async (city) => {
     setLoading(true);
     setError(null);
+    setLastSearch(city);
 
     try {
       // Step 1: Get the location coordinates using the geocoding API
@@ -87,24 +89,74 @@ export default function Weather() {
       <SearchBar onSearch={handleSearch} />
       
       {loading && (
-        <div className="flex items-center justify-center p-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+        <div className="animate-fadeIn w-full flex flex-col items-center justify-center p-8">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+            <div className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-20"></div>
+          </div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            Loading weather for {lastSearch}...
+          </p>
         </div>
       )}
       
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p>{error}</p>
+      {error && !loading && (
+        <div className="animate-fadeIn w-full">
+          <div className="bg-red-100 dark:bg-red-900/30 backdrop-blur-sm border border-red-400 dark:border-red-500 text-red-700 dark:text-red-300 px-6 py-5 rounded-lg mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>{error}</p>
+          </div>
+          <div className="text-center">
+            <button 
+              onClick={() => setError(null)}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+            >
+              Try again
+            </button>
+          </div>
         </div>
       )}
       
-      {weatherData && !loading && <WeatherDisplay weatherData={weatherData} />}
+      {weatherData && !loading && (
+        <div className="animate-fadeIn w-full">
+          <WeatherDisplay weatherData={weatherData} />
+        </div>
+      )}
       
       {!weatherData && !loading && !error && (
-        <div className="text-center text-gray-500 mt-8">
-          <p>Enter a city name to see the current weather</p>
+        <div className="text-center mt-16 mb-8">
+          <div className="mb-6 opacity-80">
+            <CloudIcon className="w-20 h-20 mx-auto text-blue-500 dark:text-blue-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            Search for your city
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400">
+            Enter a city name above to see the current weather
+          </p>
         </div>
       )}
     </div>
+  );
+}
+
+function CloudIcon({ className }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      className={className} 
+      fill="none" 
+      viewBox="0 0 24 24" 
+      stroke="currentColor"
+    >
+      <path 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        strokeWidth={1.5}
+        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" 
+      />
+    </svg>
   );
 }
